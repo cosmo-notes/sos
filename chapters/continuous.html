@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <title>Continuous time simulations &#8212; TAME</title>
+    <title>Continuous time simulations &#8212; SOS</title>
     
   <!-- Loaded before other Sphinx assets -->
   <link href="../_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
@@ -50,6 +50,8 @@ const thebe_selector_input = "pre"
 const thebe_selector_output = ".output, .cell_output"
 </script>
     <script async="async" src="../_static/sphinx-thebe.js"></script>
+    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Composition-rejection simulations" href="composition-rejection.html" />
@@ -97,7 +99,7 @@ const thebe_selector_output = ".output, .cell_output"
       <img src="../_static/logo.png" class="logo" alt="logo">
       
       
-      <h1 class="site-logo" id="site-title">TAME</h1>
+      <h1 class="site-logo" id="site-title">SOS</h1>
       
     </a>
 </div><form class="bd-search d-flex align-items-center" action="../search.html" method="get">
@@ -141,11 +143,6 @@ const thebe_selector_output = ".output, .cell_output"
  <li class="toctree-l1">
   <a class="reference internal" href="swarm.html">
    Swarm models
-  </a>
- </li>
- <li class="toctree-l1">
-  <a class="reference internal" href="contagion_networks.html">
-   Contagion on networks
   </a>
  </li>
 </ul>
@@ -224,7 +221,7 @@ title="Toggle navigation"
   <div class="menu-dropdown__content">
     <ul>
       <li>
-        <a href="https://mybinder.org/v2/gh/gstonge/tame/main?urlpath=lab/tree/chapters/continuous.ipynb"
+        <a href="https://mybinder.org/v2/gh/cosmos-books/sos/main?urlpath=lab/tree/chapters/continuous.ipynb"
    class="headerbtn"
    data-toggle="tooltip"
 data-placement="left"
@@ -258,7 +255,7 @@ title="Fullscreen mode"
   </span>
 
 </button>
-<a href="https://github.com/gstonge/tame"
+<a href="https://github.com/cosmos-books/sos"
    class="headerbtn"
    data-toggle="tooltip"
 data-placement="bottom"
@@ -317,12 +314,46 @@ title="Print to PDF"
     </ul>
   </div>
 </div>
+<label for="__page-toc"
+  class="headerbtn headerbtn-page-toc"
+  
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-list"></i>
+  </span>
+
+</label>
 
     </div>
 </div>
 
 <!-- Table of contents -->
 <div class="col-md-3 bd-toc show noprint">
+    <div class="tocsection onthispage pt-5 pb-3">
+        <i class="fas fa-list"></i> Contents
+    </div>
+    <nav id="bd-toc-nav" aria-label="Page">
+        <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#gillespie-s-direct-simulation">
+   Gillespie’s direct simulation
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#next-reaction-method">
+   Next reaction method
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#general-event-driven-queuing">
+   General event-driven queuing
+  </a>
+ </li>
+</ul>
+
+    </nav>
 </div>
     </div>
     <div class="article row">
@@ -334,6 +365,29 @@ title="Print to PDF"
                 <div id="print-main-content">
                     <div id="jb-print-toc">
                         
+                        <div>
+                            <h2> Contents </h2>
+                        </div>
+                        <nav aria-label="Page">
+                            <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#gillespie-s-direct-simulation">
+   Gillespie’s direct simulation
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#next-reaction-method">
+   Next reaction method
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#general-event-driven-queuing">
+   General event-driven queuing
+  </a>
+ </li>
+</ul>
+
+                        </nav>
                     </div>
                 </div>
             </div>
@@ -343,7 +397,193 @@ title="Print to PDF"
                 
   <section class="tex2jax_ignore mathjax_ignore" id="continuous-time-simulations">
 <h1>Continuous time simulations<a class="headerlink" href="#continuous-time-simulations" title="Permalink to this headline">#</a></h1>
-<p>Coming very soon!</p>
+<p>Discrete simulations of discrete models are exact, but discrete simulations of continuous models are only approximations. But how can we run a model in continuous time using the discrete data structures and logic of programming? The big conceptual jump one needs to make to do exact direct simulations of a continuous time process is to think of time in terms of number of events rather than temporal units. By discretely jumping from one event to the next, one can exactly follow the process in continuous time!</p>
+<section id="gillespie-s-direct-simulation">
+<h2>Gillespie’s direct simulation<a class="headerlink" href="#gillespie-s-direct-simulation" title="Permalink to this headline">#</a></h2>
+<p>Gillespie popularized the current wave of computational algorithms that exactly simulate a given complex model with many possible reactions or events. In their simplest form, Gillespie algorithms are direct simulations of models in continuous time where a system in state <span class="math notranslate nohighlight">\(x(t)\)</span> at time <span class="math notranslate nohighlight">\(t\)</span> evolves according to</p>
+<ul class="simple">
+<li><p>Evaluate all the rates <span class="math notranslate nohighlight">\(r_i(x,t)\)</span> of all possible events <span class="math notranslate nohighlight">\(i\)</span> at time <span class="math notranslate nohighlight">\(t\)</span>.</p></li>
+<li><p>Draw time <span class="math notranslate nohighlight">\(\tau_i\)</span> before each of them occur.</p></li>
+<li><p>Apply event <span class="math notranslate nohighlight">\(i\)</span> with the soonest time <span class="math notranslate nohighlight">\(\tau_i\)</span> record that event.</p></li>
+<li><p>Update time <span class="math notranslate nohighlight">\(t \rightarrow t+\tau_i\)</span> and repeat.</p></li>
+</ul>
+<p>This direct simulation approach applies to any continuous-time model but is computationally expensive!</p>
+<p>References:</p>
+<ul class="simple">
+<li><p>Gillespie (1976), <strong><em>A General Method for Numerically Simulating the Stochastic Time Evolution of Coupled Chemical Reactions</em></strong> <span id="id1">[<a class="reference internal" href="index.html#id4" title="Daniel T Gillespie. A general method for numerically simulating the stochastic time evolution of coupled chemical reactions. Journal of Computational Physics, 22(4):403–434, 1976.">Gillespie, 1976</a>]</span></p></li>
+<li><p>Gillespie (2007), <strong><em>Stochastic simulation of chemical kinetics</em></strong> <span id="id2">[<a class="reference internal" href="index.html#id5" title="Daniel T Gillespie. Stochastic simulation of chemical kinetics. Annu. Rev. Phys. Chem., 58:35–55, 2007.">Gillespie, 2007</a>]</span></p></li>
+</ul>
+</section>
+<section id="next-reaction-method">
+<h2>Next reaction method<a class="headerlink" href="#next-reaction-method" title="Permalink to this headline">#</a></h2>
+<p>For Markovian models, it is much faster to focus on the time to the <em>next</em> event in the series to limit the number of random numbers drawn. One can then,</p>
+<ul class="simple">
+<li><p>Evaluate all the rates <span class="math notranslate nohighlight">\(r_i(x,t)\)</span> of all possible events <span class="math notranslate nohighlight">\(i\)</span> as well as their sum <span class="math notranslate nohighlight">\(R = \sum_i r_i(x,t)\)</span>.</p></li>
+<li><p>Draw time <span class="math notranslate nohighlight">\(\tau\)</span> to the next event from a total process occurring at rate <span class="math notranslate nohighlight">\(R\)</span>.</p></li>
+<li><p>Pick the exact event <span class="math notranslate nohighlight">\(i\)</span> proportionally <span class="math notranslate nohighlight">\(r_i(x,t)\)</span>, record that event and repeat.</p></li>
+</ul>
+<p>Reference:</p>
+<ul class="simple">
+<li><p>Gibson and Bruck (2000), <strong><em>Efficient Exact Stochastic Simulation of Chemical Systems with Many Species and Many Channels</em></strong> <span id="id3">[<a class="reference internal" href="index.html#id6" title="Michael A Gibson and Jehoshua Bruck. Efficient exact stochastic simulation of chemical systems with many species and many channels. The Journal of Pphysical Chemistry A, 104(9):1876–1889, 2000.">Gibson and Bruck, 2000</a>]</span></p></li>
+</ul>
+<p>Using the continuous cell division example from our discrete algorithms, we can implement the next reaction method like so.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">use</span><span class="p">([</span><span class="s1">&#39;ggplot&#39;</span><span class="p">,</span> <span class="s1">&#39;seaborn-talk&#39;</span><span class="p">])</span>
+
+<span class="c1">#parameters</span>
+<span class="n">P_division</span> <span class="o">=</span> <span class="mi">1</span><span class="o">/</span><span class="mi">2</span>
+<span class="n">P_death</span> <span class="o">=</span> <span class="mi">1</span><span class="o">/</span><span class="mi">3</span>
+
+<span class="c1">#for each simulation</span>
+<span class="k">for</span> <span class="n">sims</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">25</span><span class="p">):</span>
+    
+    <span class="c1">#initial conditions</span>
+    <span class="n">active_cells</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">time</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">history</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">times</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    
+    <span class="c1">#for each generation</span>
+    <span class="k">while</span> <span class="n">active_cells</span> <span class="o">&lt;</span> <span class="mi">100</span> <span class="ow">and</span> <span class="n">active_cells</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        
+        <span class="c1">#calculate total rate R</span>
+        <span class="n">R_div</span> <span class="o">=</span> <span class="n">P_division</span><span class="o">*</span><span class="n">active_cells</span>
+        <span class="n">R_death</span> <span class="o">=</span> <span class="n">P_death</span><span class="o">*</span><span class="n">active_cells</span>
+        <span class="n">R</span> <span class="o">=</span> <span class="n">R_div</span> <span class="o">+</span> <span class="n">R_death</span>
+        
+        <span class="c1">#draw time to next event and event type</span>
+        <span class="n">tau</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">exponential</span><span class="p">(</span><span class="n">scale</span><span class="o">=</span><span class="mi">1</span><span class="o">/</span><span class="n">R</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">()</span> <span class="o">&lt;</span> <span class="n">R_div</span><span class="o">/</span><span class="n">R</span><span class="p">:</span>
+            <span class="n">active_cells</span><span class="o">+=</span><span class="mi">1</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">active_cells</span><span class="o">-=</span><span class="mi">1</span>
+            
+        <span class="c1">#update history</span>
+        <span class="n">time</span> <span class="o">=</span> <span class="n">time</span><span class="o">+</span><span class="n">tau</span>
+        <span class="n">history</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">history</span><span class="p">,</span> <span class="n">active_cells</span><span class="p">)</span>
+        <span class="n">times</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">times</span><span class="p">,</span> <span class="n">time</span><span class="p">)</span>
+        
+    <span class="c1">#print time series</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">times</span><span class="p">,</span><span class="n">history</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;o&quot;</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s1">&#39;--&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;black&#39;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.25</span><span class="p">)</span>
+    
+<span class="c1">#Add null simulation with label in legend and label the axes</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;o&quot;</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s1">&#39;--&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;black&#39;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.25</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Simulations&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Active cells&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Time&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="../_images/continuous_7_0.png" src="../_images/continuous_7_0.png" />
+</div>
+</div>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p>Recalculating all the rates after each events can be costly. The following event-driven takes care of that easily when only a subset of rates need to be recalculated after each event. Otherwise, one can also use approximative methods such as <a class="reference external" href="https://en.wikipedia.org/wiki/Tau-leaping">tau-leaping</a> which fixes the rates for a given period of time <span class="math notranslate nohighlight">\(\tau\)</span> before recalculating them. Once the rates are fixed, one can quickly draw the next event without any calculations before eventually updating the rates. The larger the leaps <span class="math notranslate nohighlight">\(\tau\)</span> the faster the method, but obviously this is no longer an exact simulation of the underlying model as any changes in rates are ignored during the leap.</p>
+</div>
+</section>
+<section id="general-event-driven-queuing">
+<h2>General event-driven queuing<a class="headerlink" href="#general-event-driven-queuing" title="Permalink to this headline">#</a></h2>
+<p>The computationally demanding step of the Gillespie family of algorithms is that, to be exact, we in theory have to recalculate (or check) the rate of all possible events before moving on to the next event. Direct simulation is disadvantaged when this step is expansive (for example if all events have their own unique rates that depends on the state of the system) and next reaction methods are disadvantaged if the rates associated with each events vary in time (non-Markovian dynamics). If you’re facing such models, the next algorithm will help you out!</p>
+<p>Event-driven simulations are essentially next reaction methods <em>per type of event</em>. So the question we need to ask the algorithm is not “When is the next reaction occuring?” but “When is this event going to occur? And this one? And this one?” and so on.</p>
+<p>This logic is particularly intuitive on a network so consider Susceptible-Infectious-Recovered dynamics on any network of your choosing. We start with a patient zero with a given set of neighbors. What are the possible events? If that patient zero has three neighbors, then there is one possible recovery event (which occurs at rate <span class="math notranslate nohighlight">\(\alpha\)</span>) and three possible infection events (which all occur at rate <span class="math notranslate nohighlight">\(\beta\)</span>). We can ask the algorithm to generate the time to each event independently. What is the time to recovery? Let’s keep that time in memory. What is the time to infection of neighbor 1? If that happens after recovery, then keep that time in memory. And so on. Then, we read the events in the order in which the algorithm told us they would occur. If recovery occurs first, we’re done! If an infection occurs first, we now need to update our memory <a class="reference external" href="https://en.wikipedia.org/wiki/Queue_(abstract_data_type)"><em>queue</em></a> and ask the algorithm at what time that node will recover, and when would they infect their neighbors if at all. We keep reading from our memory queue and probing the algorithm whenever needed.</p>
+<p>Consider the following function as an example of this queuing idea for infections of new nodes in SIR dynamics on networks.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">heapq</span>
+
+<span class="c1"># New infection: Plan new infections and recovery</span>
+<span class="k">def</span> <span class="nf">infect_new_node</span><span class="p">(</span><span class="n">event_queue</span><span class="p">,</span> <span class="n">G</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="n">beta</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">t</span><span class="p">):</span>
+
+    <span class="c1"># Set Recovery period</span>
+    <span class="c1"># The time to a Poisson event </span>
+    <span class="c1">#     follows an exponential distribution with average 1/rate</span>
+    <span class="n">tau_r</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">exponential</span><span class="p">(</span><span class="n">scale</span><span class="o">=</span><span class="mi">1</span><span class="o">/</span><span class="n">alpha</span><span class="p">)</span>
+    <span class="c1"># Add the recovery to the queue which orders by time, </span>
+    <span class="c1"># but also make sure to save information needed: node and event type.</span>
+    <span class="n">heapq</span><span class="o">.</span><span class="n">heappush</span><span class="p">(</span><span class="n">event_queue</span><span class="p">,</span> <span class="p">(</span><span class="n">t</span><span class="o">+</span><span class="n">tau_r</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="s2">&quot;recovery&quot;</span><span class="p">))</span>
+
+    <span class="c1"># Set infection times</span>
+    <span class="k">for</span> <span class="n">neighbor</span> <span class="ow">in</span> <span class="n">G</span><span class="o">.</span><span class="n">neighbors</span><span class="p">(</span><span class="n">node</span><span class="p">):</span> <span class="c1">#loop over ALL neighbors</span>
+      <span class="c1">#</span>
+        <span class="n">tau_i</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">exponential</span><span class="p">(</span><span class="n">scale</span><span class="o">=</span><span class="mi">1</span><span class="o">/</span><span class="n">beta</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">tau_i</span> <span class="o">&lt;</span> <span class="n">tau_r</span><span class="p">:</span>
+            <span class="n">heapq</span><span class="o">.</span><span class="n">heappush</span><span class="p">(</span><span class="n">event_queue</span><span class="p">,</span> <span class="p">(</span><span class="n">t</span><span class="o">+</span><span class="n">tau_i</span><span class="p">,</span> <span class="n">neighbor</span><span class="p">,</span> <span class="s2">&quot;infection&quot;</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">event_queue</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>We can then use this function within a simpler simulation framework simulation. We simply read and update our memory queue as needed! This is now an event-specific next reaction method, or more commonly: An <strong>event-driven simulation</strong>.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">import</span> <span class="nn">networkx</span> <span class="k">as</span> <span class="nn">nx</span>
+
+<span class="c1"># Create a network</span>
+<span class="n">G</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">barabasi_albert_graph</span><span class="p">(</span><span class="mi">1000</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+
+<span class="c1"># Event queue for continuous time events</span>
+<span class="n">event_queue</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="c1"># Parameters of the model</span>
+<span class="n">beta</span> <span class="o">=</span> <span class="mf">0.0025</span> <span class="c1">#transmission rate</span>
+<span class="n">alpha</span> <span class="o">=</span> <span class="mf">0.01</span> <span class="c1">#recovery rate</span>
+<span class="n">I0</span> <span class="o">=</span> <span class="mf">0.01</span> <span class="c1">#initial fraction of infected nodes</span>
+
+<span class="c1"># Initial conditions</span>
+<span class="n">t</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">I</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">G</span><span class="o">.</span><span class="n">nodes</span><span class="p">()):</span> <span class="c1">#loop over nodes</span>
+    <span class="n">G</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">node</span><span class="p">][</span><span class="s1">&#39;state&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;susceptible&#39;</span>
+    <span class="k">if</span> <span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">()</span><span class="o">&lt;</span><span class="n">I0</span><span class="p">:</span>
+        <span class="n">G</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">node</span><span class="p">][</span><span class="s1">&#39;state&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;infected&#39;</span>
+        <span class="n">event_queue</span> <span class="o">=</span> <span class="n">infect_new_node</span><span class="p">(</span><span class="n">event_queue</span><span class="p">,</span> <span class="n">G</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="n">beta</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span>
+        <span class="n">I</span> <span class="o">+=</span> <span class="mi">1</span>
+        
+<span class="c1"># Counter</span>
+<span class="n">history</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">times</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">history</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">I</span><span class="o">/</span><span class="n">G</span><span class="o">.</span><span class="n">number_of_nodes</span><span class="p">())</span>
+<span class="n">times</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+
+<span class="c1"># Simulation</span>
+<span class="n">tmax</span> <span class="o">=</span> <span class="mi">500</span>
+<span class="k">while</span> <span class="n">t</span><span class="o">&lt;</span><span class="n">tmax</span><span class="p">:</span>
+    <span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="n">event</span><span class="p">)</span> <span class="o">=</span> <span class="n">heapq</span><span class="o">.</span><span class="n">heappop</span><span class="p">(</span><span class="n">event_queue</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">event</span> <span class="o">==</span> <span class="s1">&#39;recovery&#39;</span> <span class="ow">and</span> <span class="n">G</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">node</span><span class="p">][</span><span class="s1">&#39;state&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;infected&#39;</span><span class="p">:</span>
+        <span class="n">G</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">node</span><span class="p">][</span><span class="s1">&#39;state&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;recovered&#39;</span>
+        <span class="n">I</span> <span class="o">-=</span> <span class="mi">1</span>
+    <span class="k">if</span> <span class="n">event</span> <span class="o">==</span> <span class="s1">&#39;infection&#39;</span> <span class="ow">and</span> <span class="n">G</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">node</span><span class="p">][</span><span class="s1">&#39;state&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;susceptible&#39;</span><span class="p">:</span>
+        <span class="n">G</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">node</span><span class="p">][</span><span class="s1">&#39;state&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;infected&#39;</span>
+        <span class="n">event_queue</span> <span class="o">=</span> <span class="n">infect_new_node</span><span class="p">(</span><span class="n">event_queue</span><span class="p">,</span> <span class="n">G</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="n">beta</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span>
+        <span class="n">I</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="n">t</span><span class="o">=</span><span class="n">time</span>
+    <span class="n">history</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">I</span><span class="o">/</span><span class="n">G</span><span class="o">.</span><span class="n">number_of_nodes</span><span class="p">())</span>
+    <span class="n">times</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+
+<span class="c1">#Add null simulation with label in legend and label the axes</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">times</span><span class="p">,</span><span class="n">history</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;o&quot;</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s1">&#39;--&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;black&#39;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.25</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Simulations&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Infected nodes&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Time&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="../_images/continuous_13_0.png" src="../_images/continuous_13_0.png" />
+</div>
+</div>
+</section>
 </section>
 
     <script type="text/x-thebe-config">

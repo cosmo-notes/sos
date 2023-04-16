@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <title>Convolution simulation of cellular automata &#8212; TAME</title>
+    <title>Convolution simulation of cellular automata &#8212; SOS</title>
     
   <!-- Loaded before other Sphinx assets -->
   <link href="../_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
@@ -50,6 +50,8 @@ const thebe_selector_input = "pre"
 const thebe_selector_output = ".output, .cell_output"
 </script>
     <script async="async" src="../_static/sphinx-thebe.js"></script>
+    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Continuous time simulations" href="continuous.html" />
@@ -97,7 +99,7 @@ const thebe_selector_output = ".output, .cell_output"
       <img src="../_static/logo.png" class="logo" alt="logo">
       
       
-      <h1 class="site-logo" id="site-title">TAME</h1>
+      <h1 class="site-logo" id="site-title">SOS</h1>
       
     </a>
 </div><form class="bd-search d-flex align-items-center" action="../search.html" method="get">
@@ -141,11 +143,6 @@ const thebe_selector_output = ".output, .cell_output"
  <li class="toctree-l1">
   <a class="reference internal" href="swarm.html">
    Swarm models
-  </a>
- </li>
- <li class="toctree-l1">
-  <a class="reference internal" href="contagion_networks.html">
-   Contagion on networks
   </a>
  </li>
 </ul>
@@ -224,7 +221,7 @@ title="Toggle navigation"
   <div class="menu-dropdown__content">
     <ul>
       <li>
-        <a href="https://mybinder.org/v2/gh/gstonge/tame/main?urlpath=lab/tree/chapters/convolution.ipynb"
+        <a href="https://mybinder.org/v2/gh/cosmos-books/sos/main?urlpath=lab/tree/chapters/convolution.ipynb"
    class="headerbtn"
    data-toggle="tooltip"
 data-placement="left"
@@ -258,7 +255,7 @@ title="Fullscreen mode"
   </span>
 
 </button>
-<a href="https://github.com/gstonge/tame"
+<a href="https://github.com/cosmos-books/sos"
    class="headerbtn"
    data-toggle="tooltip"
 data-placement="bottom"
@@ -382,7 +379,28 @@ title="Print to PDF"
 <h1>Convolution simulation of cellular automata<a class="headerlink" href="#convolution-simulation-of-cellular-automata" title="Permalink to this headline">#</a></h1>
 <p>We saw in discrete simulations how algorithms can benefit from composing or grouping together many events instead of independently testing them. A similar issue often arises in discrete spatial models, like <a class="reference external" href="https://en.wikipedia.org/wiki/Cellular_automaton">cellular automata</a>. These models are a collection of cells which can take a discrete number of states, and whose dynamics are governed by a simple rulebook applied iteratively and (in principle) independently to each cell to determine its future state.</p>
 <p>In a nutshell, <strong>cellular automata</strong> can be summarized as spatial rulebooks. These rules take a defined local neighborhood (e.g. <a class="reference external" href="https://en.wikipedia.org/wiki/Moore_neighborhood">Moore neighborhhod</a>), and assign a state for the center cell based on the states of others cells in the neighborhood. When the positions of cells matter, and since these states only take one of a few values (often 2 or 3), neighborhoods can be read as binary or ternary numbers respectively. The rulebook is then a dictionary taking a number representing the neighborhood as a key and returning the future state as value. When the position of cells do not matter, cellular automata are totalistic; meaning that the rulebook only needs the numbers of cells in a given state in the neighborhood. In this case, we can design our own encoding scheme to turn neighborhoods into numbers by assigning a given range of values to count a particular cells in a given state. We do a classic example next.</p>
-<p>Regardless of the exact details, iterating the rulebook over every cell can be a slow process since every cell is looked at and counted multiple times for all neighborhoods to which it belongs. Thankfully, Fourier transform can come to the rescue, as they often do, through the <a class="reference external" href="https://en.wikipedia.org/wiki/Convolution_theorem">convolution theorem</a>. We can interpret the neighborhood definition as a kernel that we which to convolve or correlate with the current state of the system. If we design the kernel in a smart way, the resulting value of every cell will contain information about its own state as well as its neighbors. This step can be tricky but is very valuable, especially if the neighborhood itself becomes large. Let’s tackle a classic example!</p>
+<p>Regardless of the exact details, iterating the rulebook over every cell can be a slow process since every cell is looked at and counted multiple times for all neighborhoods to which it belongs. Thankfully, Fourier transform can come to the rescue, as they often do, through the <a class="reference external" href="https://en.wikipedia.org/wiki/Convolution_theorem">convolution theorem</a>. We can interpret the neighborhood definition as a kernel that we wish to convolve with the current state of the system.</p>
+<p>To understand the link between a cellular automaton and convolution, it is useful to imagine storing the state of the system in a <a class="reference external" href="https://en.wikipedia.org/wiki/Generating_function">generating function</a> rather than an array. For a two dimensional system, imagine interpreting the <span class="math notranslate nohighlight">\((i,j)\)</span> entry of your array as the coefficient of the <span class="math notranslate nohighlight">\(x^iy^j\)</span> term of two-dimensional polynomial. From there, one can also interpret the neighborhood function as the weight given to potential neighbors (e.g. <span class="math notranslate nohighlight">\(w_{tl}\)</span> for the weight of the top-left neighbor) and the spatial relationship between neighbors (e.g., the top left neighbor needs to be multipled by <span class="math notranslate nohighlight">\(x\)</span> and <span class="math notranslate nohighlight">\(y\)</span> to affect its diagonal neighbor). The multiplication of the state polynomial and the neighborhood or kernel polynomial should then contain all important information about the state of every cell and of its neighborhood, which hopefully can then just be looked up in the rulebook. Below, we represent this multiplication with matrices to help visualize the connection with the spatial model, but these are actuall just classic polynomials missing their <span class="math notranslate nohighlight">\(+\)</span> symbols. Here we go:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}
+S(x,y,t+1) = 
+\textrm{Rulebook}\bigg\lbrace
+\begin{pmatrix}
+S_{11}xy &amp; S_{21}x^2y &amp; S_{31}x^3y &amp; S_{41}x^4y \\
+S_{12}x y^2 &amp; S_{22}x^2y^2 &amp; S_{32}x^3y^2 &amp;S_{42} x^4y^2 \\
+S_{13}x y^3 &amp; S_{23}x^2y^3 &amp; S_{33}x^3y^3 &amp; S_{43}x^4y^3 \\
+S_{14}x y^4 &amp; S_{24}x^2y^4 &amp; S_{34}x^3y^4 &amp; S_{44}x^4y^4 \\
+\end{pmatrix}
+\times
+\begin{pmatrix}
+w_{tl}xy &amp; w_{t}y &amp; w_{tr}y/x \\
+w_{l}x &amp; w_{c} &amp; w_{r}/x \\
+w_{bl}x/y &amp; w_{b}/y &amp; w_{br}1/(xy) \\
+\end{pmatrix}
+\bigg\rbrace
+\end{split}\]</div>
+<p>To see how this works, consider a simple binary cellular automaton where <span class="math notranslate nohighlight">\(S_{ij}\)</span> equals 0 or 1, with a <a class="reference external" href="https://en.wikipedia.org/wiki/Von_Neumann_neighborhood">von Neumann neighborhood</a> such that <span class="math notranslate nohighlight">\(w_{tl}=w_{tr}=w_{bl}=w_{br}=0\)</span>. We can then set <span class="math notranslate nohighlight">\(w_t=1\)</span>, <span class="math notranslate nohighlight">\(w_r=2\)</span>, <span class="math notranslate nohighlight">\(w_b=4\)</span>, <span class="math notranslate nohighlight">\(w_l=8\)</span>, <span class="math notranslate nohighlight">\(w_c=16\)</span> to interpret the result of the multiplication above as a binary number capturing the full state of every cell and neighborhood. For example, if we focus on cell <span class="math notranslate nohighlight">\((2,2)\)</span>, the multiplication would give us <span class="math notranslate nohighlight">\(16S_{22}+8S_{12}+4S_{23}+2S_{32}+S_{21}\)</span>. This number will be in the interval (0,15) only if <span class="math notranslate nohighlight">\(S_{22}\)</span> equals 0 and in the interval (16,31) otherwise. Then, the number will in the first half of that interval if the left neighbor <span class="math notranslate nohighlight">\(S_{12}\)</span> equals 0 and in the second half otherwise. And so on for every neighbor of decreasing weight, until we know that the number will be odd if the state of top neighbor equals 1 and even otherwise. We can therefore encode the rulebook in a way that maps the result of this multiplication of this polynomial to the actual rule of the model!</p>
+<p>Designing the kernel can be tricky but it is very valuable, especially if the neighborhood itself becomes large. Let’s tackle a classic example!</p>
 <section id="conway-s-game-of-life">
 <h2>Conway’s Game of Life<a class="headerlink" href="#conway-s-game-of-life" title="Permalink to this headline">#</a></h2>
 <p>The <a class="reference external" href="https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life">Game of Life</a> is a two-dimensional, binary, and totalistic, cellular automaton meant to represent a simple model of population dynamics. The totalistic rulebook consists of four rules:</p>
@@ -392,13 +410,12 @@ title="Print to PDF"
 <li><p>Live cells in any other neighborhoods keep on living.</p></li>
 <li><p>Dead cells come back by reproduction only if they have exactly three live neighbors.</p></li>
 </ul>
-<p>We first need to create a grid and assign the state 1 to any live cell and 0 to any dead cell. To apply the rulebook, we thus need to count live cells in our neighborhoods but also distinguish the state of the current cell. With a Moore neighborhood consisting of 8 neighbors, we can assign a weight of 1 to neighbors such that the number of live neighbors will be between 0 and 8. We can then assign a weight of 10 to the center cell such that a dead cell with 5 live neighbors would correspond to rule 5 but a live cell with the same neighborhood would correspond to rule 15. Importantly, the rulebooks for dead and live cells do not overlap. The first covers rule 0 through 8 (potential numbers of live neighbors) and the other 10 through 18.</p>
+<p>We first need to create a grid and assign the state 1 to any live cell and 0 to any dead cell. To apply the rulebook, we thus need to count live cells in our neighborhoods but also distinguish the state of the current cell. With a Moore neighborhood consisting of 8 neighbors, we can assign a weight of 1 to all neighbors such that the number of live neighbors will be between 0 and 8. We can then assign a weight of 10 to the center cell such that a dead cell with 5 live neighbors would correspond to rule 5 but a live cell with the same neighborhood would correspond to rule 15. Importantly, the rulebooks for dead and live cells do not overlap. The first covers rule 0 through 8 (potential numbers of live neighbors) and the other 10 through 18. This is simpler than a full encoding of the neighborhood as a binary number since we do not need to distinguish neighbors, only the central cell and its neighbors.</p>
 <p>Here is a simple example implementing this smart rulebook-neighborhood pair as a kernel and using convolution to run the model.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%</span><span class="k">matplotlib</span> notebook
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">scipy.signal</span> <span class="kn">import</span> <span class="n">correlate2d</span>
 <span class="kn">from</span> <span class="nn">scipy.ndimage</span> <span class="kn">import</span> <span class="n">convolve</span>
 <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
 <span class="kn">from</span> <span class="nn">matplotlib.animation</span> <span class="kn">import</span> <span class="n">FuncAnimation</span>
@@ -504,7 +521,9 @@ mpl.figure = function (figure_id, websocket, ondownload, parent_element) {
         fig.send_message('supports_binary', { value: fig.supports_binary });
         fig.send_message('send_image_mode', {});
         if (fig.ratio !== 1) {
-            fig.send_message('set_dpi_ratio', { dpi_ratio: fig.ratio });
+            fig.send_message('set_device_pixel_ratio', {
+                device_pixel_ratio: fig.ratio,
+            });
         }
         fig.send_message('refresh', {});
     };
@@ -598,9 +617,6 @@ mpl.figure.prototype._init_canvas = function () {
         1;
 
     this.ratio = (window.devicePixelRatio || 1) / backingStore;
-    if (this.ratio !== 1) {
-        fig.send_message('set_dpi_ratio', { dpi_ratio: this.ratio });
-    }
 
     var rubberband_canvas = (this.rubberband_canvas = document.createElement(
         'canvas'
@@ -668,7 +684,7 @@ mpl.figure.prototype._init_canvas = function () {
             // And update the size in Python. We ignore the initial 0/0 size
             // that occurs as the element is placed into the DOM, which should
             // otherwise not happen due to the minimum size styling.
-            if (width != 0 && height != 0) {
+            if (fig.ws.readyState == 1 && width != 0 && height != 0) {
                 fig.request_resize(width, height);
             }
         }
@@ -688,6 +704,10 @@ mpl.figure.prototype._init_canvas = function () {
     rubberband_canvas.addEventListener(
         'mouseup',
         on_mouse_event_closure('button_release')
+    );
+    rubberband_canvas.addEventListener(
+        'dblclick',
+        on_mouse_event_closure('dblclick')
     );
     // Throttle sequential mouse events to 1 every 20ms.
     rubberband_canvas.addEventListener(
@@ -882,22 +902,7 @@ mpl.figure.prototype.handle_figure_label = function (fig, msg) {
 };
 
 mpl.figure.prototype.handle_cursor = function (fig, msg) {
-    var cursor = msg['cursor'];
-    switch (cursor) {
-        case 0:
-            cursor = 'pointer';
-            break;
-        case 1:
-            cursor = 'default';
-            break;
-        case 2:
-            cursor = 'crosshair';
-            break;
-        case 3:
-            cursor = 'move';
-            break;
-    }
-    fig.rubberband_canvas.style.cursor = cursor;
+    fig.rubberband_canvas.style.cursor = msg['cursor'];
 };
 
 mpl.figure.prototype.handle_message = function (fig, msg) {
@@ -946,11 +951,14 @@ mpl.figure.prototype.updated_canvas_event = function () {
 mpl.figure.prototype._make_on_message_function = function (fig) {
     return function socket_on_message(evt) {
         if (evt.data instanceof Blob) {
-            /* FIXME: We get "Resource interpreted as Image but
-             * transferred with MIME type text/plain:" errors on
-             * Chrome.  But how to set the MIME type?  It doesn't seem
-             * to be part of the websocket stream */
-            evt.data.type = 'image/png';
+            var img = evt.data;
+            if (img.type !== 'image/png') {
+                /* FIXME: We get "Resource interpreted as Image but
+                 * transferred with MIME type text/plain:" errors on
+                 * Chrome.  But how to set the MIME type?  It doesn't seem
+                 * to be part of the websocket stream */
+                img.type = 'image/png';
+            }
 
             /* Free the memory for the previous frames */
             if (fig.imageObj.src) {
@@ -960,7 +968,7 @@ mpl.figure.prototype._make_on_message_function = function (fig) {
             }
 
             fig.imageObj.src = (window.URL || window.webkitURL).createObjectURL(
-                evt.data
+                img
             );
             fig.updated_canvas_event();
             fig.waiting = false;
@@ -1006,7 +1014,7 @@ mpl.figure.prototype._make_on_message_function = function (fig) {
     };
 };
 
-// from http://stackoverflow.com/questions/1114465/getting-mouse-location-in-canvas
+// from https://stackoverflow.com/questions/1114465/getting-mouse-location-in-canvas
 mpl.findpos = function (e) {
     //this section is from http://www.quirksmode.org/js/events_properties.html
     var targ;
@@ -1034,7 +1042,7 @@ mpl.findpos = function (e) {
 /*
  * return a copy of an object with only non-object keys
  * we need this to avoid circular references
- * http://stackoverflow.com/a/24161582/3208463
+ * https://stackoverflow.com/a/24161582/3208463
  */
 function simpleKeys(original) {
     return Object.keys(original).reduce(function (obj, key) {
@@ -1079,10 +1087,10 @@ mpl.figure.prototype._key_event_extra = function (_event, _name) {
 mpl.figure.prototype.key_event = function (event, name) {
     // Prevent repeat events
     if (name === 'key_press') {
-        if (event.which === this._key) {
+        if (event.key === this._key) {
             return;
         } else {
-            this._key = event.which;
+            this._key = event.key;
         }
     }
     if (name === 'key_release') {
@@ -1090,18 +1098,17 @@ mpl.figure.prototype.key_event = function (event, name) {
     }
 
     var value = '';
-    if (event.ctrlKey && event.which !== 17) {
+    if (event.ctrlKey && event.key !== 'Control') {
         value += 'ctrl+';
     }
-    if (event.altKey && event.which !== 18) {
+    else if (event.altKey && event.key !== 'Alt') {
         value += 'alt+';
     }
-    if (event.shiftKey && event.which !== 16) {
+    else if (event.shiftKey && event.key !== 'Shift') {
         value += 'shift+';
     }
 
-    value += 'k';
-    value += event.which.toString();
+    value += 'k' + event.key;
 
     this._key_event_extra(event, name);
 
@@ -1124,9 +1131,9 @@ mpl.figure.prototype.toolbar_button_onmouseover = function (tooltip) {
 ///////////////// REMAINING CONTENT GENERATED BY embed_js.py /////////////////
 // prettier-ignore
 var _JSXTOOLS_RESIZE_OBSERVER=function(A){var t,i=new WeakMap,n=new WeakMap,a=new WeakMap,r=new WeakMap,o=new Set;function s(e){if(!(this instanceof s))throw new TypeError("Constructor requires 'new' operator");i.set(this,e)}function h(){throw new TypeError("Function is not a constructor")}function c(e,t,i,n){e=0 in arguments?Number(arguments[0]):0,t=1 in arguments?Number(arguments[1]):0,i=2 in arguments?Number(arguments[2]):0,n=3 in arguments?Number(arguments[3]):0,this.right=(this.x=this.left=e)+(this.width=i),this.bottom=(this.y=this.top=t)+(this.height=n),Object.freeze(this)}function d(){t=requestAnimationFrame(d);var s=new WeakMap,p=new Set;o.forEach((function(t){r.get(t).forEach((function(i){var r=t instanceof window.SVGElement,o=a.get(t),d=r?0:parseFloat(o.paddingTop),f=r?0:parseFloat(o.paddingRight),l=r?0:parseFloat(o.paddingBottom),u=r?0:parseFloat(o.paddingLeft),g=r?0:parseFloat(o.borderTopWidth),m=r?0:parseFloat(o.borderRightWidth),w=r?0:parseFloat(o.borderBottomWidth),b=u+f,F=d+l,v=(r?0:parseFloat(o.borderLeftWidth))+m,W=g+w,y=r?0:t.offsetHeight-W-t.clientHeight,E=r?0:t.offsetWidth-v-t.clientWidth,R=b+v,z=F+W,M=r?t.width:parseFloat(o.width)-R-E,O=r?t.height:parseFloat(o.height)-z-y;if(n.has(t)){var k=n.get(t);if(k[0]===M&&k[1]===O)return}n.set(t,[M,O]);var S=Object.create(h.prototype);S.target=t,S.contentRect=new c(u,d,M,O),s.has(i)||(s.set(i,[]),p.add(i)),s.get(i).push(S)}))})),p.forEach((function(e){i.get(e).call(e,s.get(e),e)}))}return s.prototype.observe=function(i){if(i instanceof window.Element){r.has(i)||(r.set(i,new Set),o.add(i),a.set(i,window.getComputedStyle(i)));var n=r.get(i);n.has(this)||n.add(this),cancelAnimationFrame(t),t=requestAnimationFrame(d)}},s.prototype.unobserve=function(i){if(i instanceof window.Element&&r.has(i)){var n=r.get(i);n.has(this)&&(n.delete(this),n.size||(r.delete(i),o.delete(i))),n.size||r.delete(i),o.size||cancelAnimationFrame(t)}},A.DOMRectReadOnly=c,A.ResizeObserver=s,A.ResizeObserverEntry=h,A}; // eslint-disable-line
-mpl.toolbar_items = [["Home", "Reset original view", "fa fa-home icon-home", "home"], ["Back", "Back to previous view", "fa fa-arrow-left icon-arrow-left", "back"], ["Forward", "Forward to next view", "fa fa-arrow-right icon-arrow-right", "forward"], ["", "", "", ""], ["Pan", "Left button pans, Right button zooms\nx/y fixes axis, CTRL fixes aspect", "fa fa-arrows icon-move", "pan"], ["Zoom", "Zoom to rectangle\nx/y fixes axis, CTRL fixes aspect", "fa fa-square-o icon-check-empty", "zoom"], ["", "", "", ""], ["Download", "Download plot", "fa fa-floppy-o icon-save", "download"]];
+mpl.toolbar_items = [["Home", "Reset original view", "fa fa-home icon-home", "home"], ["Back", "Back to previous view", "fa fa-arrow-left icon-arrow-left", "back"], ["Forward", "Forward to next view", "fa fa-arrow-right icon-arrow-right", "forward"], ["", "", "", ""], ["Pan", "Left button pans, Right button zooms\nx/y fixes axis, CTRL fixes aspect", "fa fa-arrows icon-move", "pan"], ["Zoom", "Zoom to rectangle\nx/y fixes axis", "fa fa-square-o icon-check-empty", "zoom"], ["", "", "", ""], ["Download", "Download plot", "fa fa-floppy-o icon-save", "download"]];
 
-mpl.extensions = ["eps", "jpeg", "pdf", "png", "ps", "raw", "svg", "tif"];
+mpl.extensions = ["eps", "jpeg", "pgf", "pdf", "png", "ps", "raw", "svg", "tif"];
 
 mpl.default_extension = "png";/* global mpl */
 
@@ -1135,6 +1142,19 @@ var comm_websocket_adapter = function (comm) {
     // object with the appropriate methods. Currently this is a non binary
     // socket, so there is still some room for performance tuning.
     var ws = {};
+
+    ws.binaryType = comm.kernel.ws.binaryType;
+    ws.readyState = comm.kernel.ws.readyState;
+    function updateReadyState(_event) {
+        if (comm.kernel.ws) {
+            ws.readyState = comm.kernel.ws.readyState;
+        } else {
+            ws.readyState = 3; // Closed state.
+        }
+    }
+    comm.kernel.ws.addEventListener('open', updateReadyState);
+    comm.kernel.ws.addEventListener('close', updateReadyState);
+    comm.kernel.ws.addEventListener('error', updateReadyState);
 
     ws.close = function () {
         comm.close();
@@ -1146,8 +1166,14 @@ var comm_websocket_adapter = function (comm) {
     // Register the callback with on_msg.
     comm.on_msg(function (msg) {
         //console.log('receiving', msg['content']['data'], msg);
+        var data = msg['content']['data'];
+        if (data['blob'] !== undefined) {
+            data = {
+                data: new Blob(msg['buffers'], { type: data['blob'] }),
+            };
+        }
         // Pass the mpl event to the overridden (by mpl) onmessage function.
-        ws.onmessage(msg['content']['data']);
+        ws.onmessage(data);
     });
     return ws;
 };
@@ -1339,11 +1365,6 @@ mpl.figure.prototype._canvas_extra_style = function (el) {
 };
 
 mpl.figure.prototype._key_event_extra = function (event, _name) {
-    var manager = IPython.notebook.keyboard_manager;
-    if (!manager) {
-        manager = IPython.keyboard_manager;
-    }
-
     // Check for shift+enter
     if (event.shiftKey && event.which === 13) {
         this.canvas_div.blur();
@@ -1389,7 +1410,10 @@ if (IPython.notebook.kernel !== null) {
         mpl.mpl_figure_comm
     );
 }
-</script><div class="output text_html"><div id='e8ae9498-edcf-44f3-9d93-043d2ffd8ac6'></div></div></div>
+</script><div class="output text_html"><div id='aad8f20f-caee-4a78-84a0-199eb9a8286a'></div></div><div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>MovieWriter ffmpeg unavailable; using Pillow instead.
+</pre></div>
+</div>
+</div>
 </div>
 <p><img alt="GameOfLife" src="../_images/gol.gif" /></p>
 </section>

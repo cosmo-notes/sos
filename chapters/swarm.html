@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <title>Swarm models &#8212; TAME</title>
+    <title>Swarm models &#8212; SOS</title>
     
   <!-- Loaded before other Sphinx assets -->
   <link href="../_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
@@ -54,7 +54,7 @@ const thebe_selector_output = ".output, .cell_output"
     <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Contagions on networks" href="contagion_networks.html" />
+    <link rel="next" title="Exercises part I: discretization" href="discretization.html" />
     <link rel="prev" title="Composition-rejection simulations" href="composition-rejection.html" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="docsearch:language" content="None">
@@ -99,7 +99,7 @@ const thebe_selector_output = ".output, .cell_output"
       <img src="../_static/logo.png" class="logo" alt="logo">
       
       
-      <h1 class="site-logo" id="site-title">TAME</h1>
+      <h1 class="site-logo" id="site-title">SOS</h1>
       
     </a>
 </div><form class="bd-search d-flex align-items-center" action="../search.html" method="get">
@@ -143,11 +143,6 @@ const thebe_selector_output = ".output, .cell_output"
  <li class="toctree-l1 current active">
   <a class="current reference internal" href="#">
    Swarm models
-  </a>
- </li>
- <li class="toctree-l1">
-  <a class="reference internal" href="contagion_networks.html">
-   Contagion on networks
   </a>
  </li>
 </ul>
@@ -226,7 +221,7 @@ title="Toggle navigation"
   <div class="menu-dropdown__content">
     <ul>
       <li>
-        <a href="https://mybinder.org/v2/gh/gstonge/tame/main?urlpath=lab/tree/chapters/swarm.ipynb"
+        <a href="https://mybinder.org/v2/gh/cosmos-books/sos/main?urlpath=lab/tree/chapters/swarm.ipynb"
    class="headerbtn"
    data-toggle="tooltip"
 data-placement="left"
@@ -260,7 +255,7 @@ title="Fullscreen mode"
   </span>
 
 </button>
-<a href="https://github.com/gstonge/tame"
+<a href="https://github.com/cosmos-books/sos"
    class="headerbtn"
    data-toggle="tooltip"
 data-placement="bottom"
@@ -402,7 +397,7 @@ title="Print to PDF"
                 
   <section class="tex2jax_ignore mathjax_ignore" id="swarm-models">
 <h1>Swarm models<a class="headerlink" href="#swarm-models" title="Permalink to this headline">#</a></h1>
-<p>How often have you seen a <a class="reference external" href="https://www.youtube.com/watch?v=V4f_1_r80RY">murmuration of starlings</a> or <a class="reference external" href="https://www.youtube.com/watch?v=ofeYisqfOO8">baitball of mackerel</a> in an introduction to complex systems? Models of collective behavior are staples of complexity science, yet they can be deceptively tricky to implement and simulate. These are commonly continuous time, continuous space, continuous state models where every agent is unique such that composition approaches are useless and events occur continuously. How can we tackle these effectively?</p>
+<p>How often have you seen a <a class="reference external" href="https://www.youtube.com/watch?v=V4f_1_r80RY">murmuration of starlings</a> or <a class="reference external" href="https://www.youtube.com/watch?v=ofeYisqfOO8">baitball of mackerel</a> in an introduction to complex systems? Models of collective behavior are staples of complexity science, yet they can be deceptively tricky to implement and simulate. These are often defined over continuous time and continuous space as continuous state models where every agent is unique such that composition approaches are useless and events occur continuously. If we can discretize neither time itself nor the sequence of events, how can we tackle these effectively?</p>
 <p>One common approach is to use the most naive algorithm for continuous system we have seen, discrete time simulations, but couple that approach with fast algorithms from image processing toolboxes.</p>
 <section id="the-vicsek-model">
 <h2>The Vicsek model<a class="headerlink" href="#the-vicsek-model" title="Permalink to this headline">#</a></h2>
@@ -500,6 +495,11 @@ y_i(t+\Delta t) = y_i(t) + v\Delta t \sin\theta_i(t)
 </pre></div>
 </div>
 </div>
+<div class="cell_output docutils container">
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>MovieWriter ffmpeg unavailable; using Pillow instead.
+</pre></div>
+</div>
+</div>
 </div>
 <p><img alt="Vicsek" src="../_images/vicsek.gif" /></p>
 </section>
@@ -539,10 +539,10 @@ y_i(t+\Delta t) = y_i(t) + v\Delta t \sin\theta_i(t)
             <p class="prev-next-title">Composition-rejection simulations</p>
         </div>
     </a>
-    <a class='right-next' id="next-link" href="contagion_networks.html" title="next page">
+    <a class='right-next' id="next-link" href="discretization.html" title="next page">
     <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Contagions on networks</p>
+        <p class="prev-next-title">Exercises part I: discretization</p>
     </div>
     <i class="fas fa-angle-right"></i>
     </a>

@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <title>Discrete time simulations &#8212; TAME</title>
+    <title>Discrete time simulations &#8212; SOS</title>
     
   <!-- Loaded before other Sphinx assets -->
   <link href="../_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
@@ -99,7 +99,7 @@ const thebe_selector_output = ".output, .cell_output"
       <img src="../_static/logo.png" class="logo" alt="logo">
       
       
-      <h1 class="site-logo" id="site-title">TAME</h1>
+      <h1 class="site-logo" id="site-title">SOS</h1>
       
     </a>
 </div><form class="bd-search d-flex align-items-center" action="../search.html" method="get">
@@ -143,11 +143,6 @@ const thebe_selector_output = ".output, .cell_output"
  <li class="toctree-l1">
   <a class="reference internal" href="swarm.html">
    Swarm models
-  </a>
- </li>
- <li class="toctree-l1">
-  <a class="reference internal" href="contagion_networks.html">
-   Contagion on networks
   </a>
  </li>
 </ul>
@@ -226,7 +221,7 @@ title="Toggle navigation"
   <div class="menu-dropdown__content">
     <ul>
       <li>
-        <a href="https://mybinder.org/v2/gh/gstonge/tame/main?urlpath=lab/tree/chapters/discrete.ipynb"
+        <a href="https://mybinder.org/v2/gh/cosmos-books/sos/main?urlpath=lab/tree/chapters/discrete.ipynb"
    class="headerbtn"
    data-toggle="tooltip"
 data-placement="left"
@@ -260,7 +255,7 @@ title="Fullscreen mode"
   </span>
 
 </button>
-<a href="https://github.com/gstonge/tame"
+<a href="https://github.com/cosmos-books/sos"
    class="headerbtn"
    data-toggle="tooltip"
 data-placement="bottom"
@@ -624,7 +619,7 @@ x(t+dt) = x(t) + F(x)dt + F'(x)dt^2 + F''(x)dt^3 + \ldots
         <span class="k">for</span> <span class="n">cell</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">active_cells</span><span class="p">):</span>
             <span class="c1">#test division</span>
             <span class="k">if</span> <span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">()</span> <span class="o">&lt;</span> <span class="n">P_division</span><span class="o">*</span><span class="n">dt</span><span class="p">:</span>
-                <span class="n">active_cells</span> <span class="o">+=</span> <span class="mi">2</span>
+                <span class="n">active_cells</span> <span class="o">+=</span> <span class="mi">1</span>
             <span class="c1">#test death</span>
             <span class="k">if</span> <span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">()</span> <span class="o">&lt;</span> <span class="n">P_death</span><span class="o">*</span><span class="n">dt</span><span class="p">:</span>
                 <span class="n">active_cells</span> <span class="o">-=</span> <span class="mi">1</span>
