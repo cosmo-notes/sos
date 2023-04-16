@@ -19,8 +19,6 @@ parts:
   chapters:
   - file: chapters/swarm
     title: Swarm models
-  - file: chapters/contagion_networks
-    title: Contagion on networks
 
 - caption: Exercises
   chapters:
