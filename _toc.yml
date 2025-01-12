@@ -22,9 +22,11 @@ parts:
 
 - caption: Exercises
   chapters:
-  - file: chapters/discretization
-    title: "Part I: choosing discretization"
-  - file: chapters/obstacles
-    title: "Part II: avoiding obstacles"
+  - file: chapters/exercise_discretization
+    title: "Part I: Choosing discretization"
+  - file: chapters/exercise_obstacles
+    title: "Part II: Avoiding obstacles"
+  - file: chapters/exercise_fires
+    title: "Part III: Forest fires"
 
 
