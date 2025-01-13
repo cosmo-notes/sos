@@ -167,7 +167,7 @@
 <li class="toctree-l1 current active"><a class="current reference internal" href="#">Discrete time approaches</a></li>
 <li class="toctree-l1"><a class="reference internal" href="convolution.html">Convolution of spatial models</a></li>
 <li class="toctree-l1"><a class="reference internal" href="continuous.html">Continuous event-driven Gillespie</a></li>
-<li class="toctree-l1"><a class="reference internal" href="composition-rejection.html">Composition-rejection algorithms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="composition-rejection.html">Composition-rejection algorithms for networks</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Applications</span></p>
 <ul class="nav bd-sidenav">
@@ -430,7 +430,7 @@
 </div>
 </div>
 <div class="cell_output docutils container">
-<img alt="../_images/e8dc46fcd31009160a89534401a81e1b5a66da829face840ec4e1c5458219d12.png" src="../_images/e8dc46fcd31009160a89534401a81e1b5a66da829face840ec4e1c5458219d12.png" />
+<img alt="../_images/748d68c1cfc1d08b4e3dc6afdf540c1aeffdbc75e01a249c8777e52ba3a7987d.png" src="../_images/748d68c1cfc1d08b4e3dc6afdf540c1aeffdbc75e01a249c8777e52ba3a7987d.png" />
 </div>
 </div>
 <div class="admonition tip">
@@ -479,7 +479,7 @@
 </div>
 </div>
 <div class="cell_output docutils container">
-<img alt="../_images/45d07253c4947fd64630e5e0333d55c865328670ac202abab9b525ad21f91766.png" src="../_images/45d07253c4947fd64630e5e0333d55c865328670ac202abab9b525ad21f91766.png" />
+<img alt="../_images/4522c36d414a27477b4710226cb9e74a3c4b6e8455204ae921a3a5cc1d2935b9.png" src="../_images/4522c36d414a27477b4710226cb9e74a3c4b6e8455204ae921a3a5cc1d2935b9.png" />
 </div>
 </div>
 </section>
@@ -549,7 +549,7 @@
 </div>
 </div>
 <div class="cell_output docutils container">
-<img alt="../_images/a0cac8cdcf9e2701b5ae426fd4d27ce51272cd746f3e137b8413fd0747797b82.png" src="../_images/a0cac8cdcf9e2701b5ae426fd4d27ce51272cd746f3e137b8413fd0747797b82.png" />
+<img alt="../_images/1629990eb4e9075ca6520d73d2ace6d7ff78871b07812735292a21b6dab92d58.png" src="../_images/1629990eb4e9075ca6520d73d2ace6d7ff78871b07812735292a21b6dab92d58.png" />
 </div>
 </div>
 <p>Notice that we now start the simulation with a single cell rather than 10 as before. This is to highlight an interesting behavior. The agent-based simulation is faster when there are few active cells. Why could that be? Drawing from a binomial distribution with zero trial might be trivial in practice (as we can’t have any success without any trial), but the computer still has to call the function. In turn, the agent-based model skips over any simulation with no active cells. This is not just due to simulations with exactly zero active cells, but any simulation where the overhead of a single draw from a more complicated binomial distribution over <span class="math notranslate nohighlight">\(N\)</span> trials is larger than the time needed to directly do <span class="math notranslate nohighlight">\(N\)</span> draws from a simple uniform distribution.</p>
@@ -617,7 +617,7 @@ x(t+dt) = x(t) + F(x)dt + F'(x)dt^2 + F''(x)dt^3 + \ldots
 </div>
 </div>
 <div class="cell_output docutils container">
-<img alt="../_images/74ad39d158ff29a495b060b33d61026b000c14c73493b6152e3a9c2d754a4138.png" src="../_images/74ad39d158ff29a495b060b33d61026b000c14c73493b6152e3a9c2d754a4138.png" />
+<img alt="../_images/1c446706cd40be504c276d168d0bd47888918dfc4c494626dcfe7d59b2f4f714.png" src="../_images/1c446706cd40be504c276d168d0bd47888918dfc4c494626dcfe7d59b2f4f714.png" />
 </div>
 </div>
 <div class="admonition tip">

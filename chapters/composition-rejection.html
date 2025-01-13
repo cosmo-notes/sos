@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Composition-rejection simulations &#8212; SOS</title>
+    <title>Composition-rejection algorithms for networks &#8212; SOS</title>
   
   
   
@@ -60,6 +60,8 @@
     <script async="async" src="../_static/sphinx-thebe.js?v=c100c467"></script>
     <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
     <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'chapters/composition-rejection';</script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -165,7 +167,7 @@
 <li class="toctree-l1"><a class="reference internal" href="discrete.html">Discrete time approaches</a></li>
 <li class="toctree-l1"><a class="reference internal" href="convolution.html">Convolution of spatial models</a></li>
 <li class="toctree-l1"><a class="reference internal" href="continuous.html">Continuous event-driven Gillespie</a></li>
-<li class="toctree-l1 current active"><a class="current reference internal" href="#">Composition-rejection algorithms</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Composition-rejection algorithms for networks</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Applications</span></p>
 <ul class="nav bd-sidenav">
@@ -357,7 +359,7 @@
               
 
 <div id="jb-print-docs-body" class="onlyprint">
-    <h1>Composition-rejection simulations</h1>
+    <h1>Composition-rejection algorithms for networks</h1>
     <!-- Table of contents -->
     <div id="print-main-content">
         <div id="jb-print-toc">
@@ -367,7 +369,9 @@
             </div>
             <nav aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#samplable-sets">Samplable sets</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#node-based-composition">Node-based composition</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#rejection-sampling">Rejection sampling</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#composition-and-rejection-algorithm">Composition-and-rejection algorithm</a></li>
 </ul>
             </nav>
         </div>
@@ -379,11 +383,51 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section class="tex2jax_ignore mathjax_ignore" id="composition-rejection-simulations">
-<h1>Composition-rejection simulations<a class="headerlink" href="#composition-rejection-simulations" title="Link to this heading">#</a></h1>
-<p>Coming soon!</p>
-<section id="samplable-sets">
-<h2>Samplable sets<a class="headerlink" href="#samplable-sets" title="Link to this heading">#</a></h2>
+  <section class="tex2jax_ignore mathjax_ignore" id="composition-rejection-algorithms-for-networks">
+<h1>Composition-rejection algorithms for networks<a class="headerlink" href="#composition-rejection-algorithms-for-networks" title="Link to this heading">#</a></h1>
+<p>One key insight from the Gillespie algorithms is that our simulations can save time by combining equivalent events and drawing from a group of events before deciding which exact event occurs. We can call this step a <em>composition</em> of events and it often leads to groupings of events with heterogeneous rates. When drawing from heterogeneous sets of possible events, we can also gain speed by actually drawing events uniformly (which is wrong) but rejecting some of them to exactly compensate this bias. We call this step a <em>rejection</em>.</p>
+<p>Merging these two ideas enable us to use a family of <em>composition and rejection algorithms</em> which can be powerful tools when dealing with simulations of heterogeneous systems.</p>
+<p>We here explain this idea in the context of <a class="reference external" href="https://www.sciencedirect.com/science/article/abs/pii/S0010465519300608">spreading processes on heterogeneous networks using a composition and rejection algorithm</a>. The simulation presented here is, at the time of this writing in early 2025, the fastest approach for simulations on dense or heterogeneous unweighted networks.</p>
+<p>In what follows, we wish to simulate SIS dynamics on networks. We have a finite population of <span class="math notranslate nohighlight">\(N\)</span> nodes interconnected in some ways. Nodes can be infectious or susceptible. Infectious nodes infect their susceptible neighbours at a rate <span class="math notranslate nohighlight">\(\beta\)</span> and recover at a rate <span class="math notranslate nohighlight">\(\alpha\)</span>.</p>
+<p>The direct Gillespie simulation approach would therefore be to keep track of all infectious nodes which can recover, and all infectious-susceptible pairs that can lead to an infection. One would then draw an inter-event time for each possible events, run the next event, and update the list of possible events accordingly.</p>
+<section id="node-based-composition">
+<h2>Node-based composition<a class="headerlink" href="#node-based-composition" title="Link to this heading">#</a></h2>
+<p>On a network, one way to improve on the direct Gillespie simulation is to select <em>nodes</em> rather than <em>events</em>. Indeed, all events occur around infectious nodes: Either directly (recovery) or on one of their edges (infection). For example, if we want to sample uniformly among possible infection events without tracking all pairs of nodes, we can keep track of the degree of infectious nodes and simply draw a random neighbor of a random infectious node drawn proportionally to its degree. Note that we are sampling a <em>possible</em> infection event, as the neighbour might already be infectious. In that case, the event is not wrong; it just does not matter.</p>
+<p>We are going to build on this idea by combining all processes associated with a node into a single <em>propensity</em>. The propensity will be proportional to their probability of being drawn for the next event. Adding recovery events to our previous logic, we write the probability of drawing node <span class="math notranslate nohighlight">\(i\)</span> given the state of the system <span class="math notranslate nohighlight">\(x\)</span> as</p>
+<div class="math notranslate nohighlight">
+\[
+P(i\vert x) = \frac{\omega_i(x)}{W(x)} = \frac{\delta(x_i,I)\left(\beta k_i + \alpha\right)}{\sum_j \omega_j(x)}
+\]</div>
+<p>where <span class="math notranslate nohighlight">\(\omega_i(x)\)</span> is the propensity of node <span class="math notranslate nohighlight">\(i\)</span> to be involved in an event. That propensity is only non-zero if node <span class="math notranslate nohighlight">\(i\)</span> is infectious, which is what we mean with the Kronecker delta <span class="math notranslate nohighlight">\(\delta(x_i,I)\)</span> that equals 1 if the state <span class="math notranslate nohighlight">\(x_i = I\)</span> and zero otherwhise. When infectious, the total rate of possible events around node <span class="math notranslate nohighlight">\(i\)</span> is proportional to its total infection rate (<span class="math notranslate nohighlight">\(\beta\)</span> times its degree <span class="math notranslate nohighlight">\(k_i\)</span>) plus its recovery rate <span class="math notranslate nohighlight">\(\alpha\)</span>. The denominator is then simply a normalizing factor.</p>
+<p>With this approach, we could simulate the process easily assuming we could sample quickly based on <span class="math notranslate nohighlight">\(P(i\vert x)\)</span>. The algorithm would then go as follows:</p>
+<ol class="arabic simple">
+<li><p>Draw a node <span class="math notranslate nohighlight">\(i\)</span> based on the distribution <span class="math notranslate nohighlight">\(\lbrace P(i\vert x)\rbrace\)</span>.</p></li>
+<li><p>Decide whether the event is a transmission with probability <span class="math notranslate nohighlight">\(\beta k_i / (\beta k_i + \alpha)\)</span> or a recovery with probability <span class="math notranslate nohighlight">\(\alpha / (\beta k_i + \alpha)\)</span></p></li>
+<li><p>If a recovery, the node recovers. If a transmission, attempt a transmission to a random neighbour of node <span class="math notranslate nohighlight">\(i\)</span>.</p></li>
+<li><p>Repeat from Step 1.</p></li>
+</ol>
+</section>
+<section id="rejection-sampling">
+<h2>Rejection sampling<a class="headerlink" href="#rejection-sampling" title="Link to this heading">#</a></h2>
+<p>Assuming that the degree distribution of the network is heterogeneous, so will the distribution <span class="math notranslate nohighlight">\(P(i\vert x)\)</span>. How can we efficiently sample nodes from this distribution? One easy technique is to use rejection sampling. We can draw nodes uniformly at random, and only accept the node drawn with some probability so that the total probability of drawing and accepting a specific node is still proportional to its propensity <span class="math notranslate nohighlight">\(\omega_i\)</span>. How should we then choose with what probability to accept the draw? We want that probability to be proportional to <span class="math notranslate nohighlight">\(\omega_i\)</span> and at most 1, so we can just use <span class="math notranslate nohighlight">\(\omega_i/\omega_{\textrm{max}}\)</span> where we use the maximum possible propensity <span class="math notranslate nohighlight">\(\omega_{\textrm{max}} = \beta k_{\textrm{max}} + \alpha\)</span>.</p>
+<p>This rejection idea is illustrated in panel (a) of the figure below. In panel (b) we show how to further improve this idea by now grouping nodes in groups of similar propensity to limit the amount of rejected samples. Indeed, rejection sampling is easy to implement, but the number of draws required for each actual event will scale inversely with the fraction of draws that end up accepted and not rejected. In the figure below, we want to limit the amount of grey area. So we add yet another composition step in our algorithm.</p>
+<p><img alt="Composition-and-rejection-sampling" src="../_images/rejection.png" /></p>
+</section>
+<section id="composition-and-rejection-algorithm">
+<h2>Composition-and-rejection algorithm<a class="headerlink" href="#composition-and-rejection-algorithm" title="Link to this heading">#</a></h2>
+<p>The next step in this algorithm draws once again from advance in complex chemical systems, and we now formally calle the resulting approach a <a class="reference external" href="https://pubs.aip.org/aip/jcp/article/128/20/205101/1003611">composition and rejection algorithm</a>. In this framework, we want to automatically build groupings of nodes such that they minimize the grey area in panel (b) above, while using a number of groups that scales at most logarithmically with the number of nodes. The key is to balance the complexity of sampling a group and the complexity of sampling a node within that group.</p>
+<p>To do so, we propose to use <span class="math notranslate nohighlight">\(B\)</span> groups labeled <span class="math notranslate nohighlight">\(b \in [1,B]\)</span>. The probability of selecting a group <span class="math notranslate nohighlight">\(b\)</span> will be</p>
+<div class="math notranslate nohighlight">
+\[
+P(b| x) = \frac{W_b(x)}{W(x)}
+\]</div>
+<p>where <span class="math notranslate nohighlight">\(W_b(x) = \sum_{i\in b} \omega_i(x)\)</span> is the total propensity of nodes within group <span class="math notranslate nohighlight">\(b\)</span>.</p>
+<p>To build the groups, we use a systematic approach where we impose a minimum acceptance probability (or maximum rejection probability) of 1/2. Therefore, we expect to get an accepted node from every other draw. Then, knowing that most nodes in the first group will be of propensity close to <span class="math notranslate nohighlight">\(\omega_{\textrm{min}}\)</span> (as can be seen on the left-hand side of panel (b) above) we need the first group to have its own maximum propensity be <span class="math notranslate nohighlight">\(2\omega_{\textrm{min}}\)</span>. Likewise, the next group will then need to have its own maximum propensity be <span class="math notranslate nohighlight">\(4\omega_{\textrm{min}}\)</span>, then <span class="math notranslate nohighlight">\(8\omega_{\textrm{min}}\)</span> and so on. Overall, the <span class="math notranslate nohighlight">\(b\)</span>-th group will contain nodes whose propensity lies between <span class="math notranslate nohighlight">\(2^{b-1}\omega_{\textrm{min}}\)</span> and <span class="math notranslate nohighlight">\(2^{b}\omega_{\textrm{min}}\)</span>. We therefore expect the number of groups needed to scale as</p>
+<div class="math notranslate nohighlight">
+\[
+B \sim \textrm{max}\left(1, \log_2\frac{\omega_{\textrm{max}}}{\omega_{\textrm{min}}}\right) \; .
+\]</div>
+<p>Finally, we now need to be able to draw a grouping of nodes at random efficiently. SInce we expect the number of groups to be at most in <span class="math notranslate nohighlight">\(\log N\)</span>, we can use a direct sampling. We keep the group propensities <span class="math notranslate nohighlight">\(P(b\vert x)\)</span> in memory and draw from that set using our favorite data structure. In our implementation, we use our own <a class="reference external" href="https://github.com/gstonge/SamplableSet">samplable sets </a> which are simple binary trees. Picking a group at random is of order <span class="math notranslate nohighlight">\(\log B\)</span> and therefore at most of order <span class="math notranslate nohighlight">\(\log \log N\)</span>. Note that if we had used direct sampling over the node propensity, our simulations would scale as <span class="math notranslate nohighlight">\(\log N\)</span>; or if we had sampled e</p>
 </section>
 </section>
 
@@ -452,7 +496,9 @@
   </div>
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#samplable-sets">Samplable sets</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#node-based-composition">Node-based composition</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#rejection-sampling">Rejection sampling</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#composition-and-rejection-algorithm">Composition-and-rejection algorithm</a></li>
 </ul>
   </nav></div>
 
