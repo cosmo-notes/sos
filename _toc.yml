@@ -13,7 +13,7 @@ parts:
   - file: chapters/continuous
     title: Continuous event-driven Gillespie
   - file: chapters/composition-rejection
-    title: Composition-rejection algorithms
+    title: Composition-rejection algorithms for networks
 
 - caption: Applications
   chapters:
