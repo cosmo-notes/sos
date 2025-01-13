@@ -468,7 +468,7 @@
 </div>
 </div>
 <div class="cell_output docutils container">
-<img alt="../_images/259256b7c30315444efa21a421f94e352bba9bdcb599bb5166492cbfa8c2448b.png" src="../_images/259256b7c30315444efa21a421f94e352bba9bdcb599bb5166492cbfa8c2448b.png" />
+<img alt="../_images/ac8d19e2c17395aecb603a437198c374be7a3ccb20fa1411bfc33c4c9d249dcd.png" src="../_images/ac8d19e2c17395aecb603a437198c374be7a3ccb20fa1411bfc33c4c9d249dcd.png" />
 </div>
 </div>
 <div class="admonition seealso">
@@ -547,6 +547,7 @@
 <span class="n">tmax</span> <span class="o">=</span> <span class="mi">500</span>
 <span class="k">while</span> <span class="n">t</span><span class="o">&lt;</span><span class="n">tmax</span><span class="p">:</span>
     <span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="n">event</span><span class="p">)</span> <span class="o">=</span> <span class="n">heapq</span><span class="o">.</span><span class="n">heappop</span><span class="p">(</span><span class="n">event_queue</span><span class="p">)</span>
+    <span class="n">t</span><span class="o">=</span><span class="n">time</span>
     <span class="k">if</span> <span class="n">event</span> <span class="o">==</span> <span class="s1">&#39;recovery&#39;</span> <span class="ow">and</span> <span class="n">G</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">node</span><span class="p">][</span><span class="s1">&#39;state&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;infected&#39;</span><span class="p">:</span>
         <span class="n">G</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">node</span><span class="p">][</span><span class="s1">&#39;state&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;recovered&#39;</span>
         <span class="n">I</span> <span class="o">-=</span> <span class="mi">1</span>
@@ -554,7 +555,6 @@
         <span class="n">G</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">node</span><span class="p">][</span><span class="s1">&#39;state&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;infected&#39;</span>
         <span class="n">event_queue</span> <span class="o">=</span> <span class="n">infect_new_node</span><span class="p">(</span><span class="n">event_queue</span><span class="p">,</span> <span class="n">G</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="n">beta</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span>
         <span class="n">I</span> <span class="o">+=</span> <span class="mi">1</span>
-    <span class="n">t</span><span class="o">=</span><span class="n">time</span>
     <span class="n">history</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">I</span><span class="o">/</span><span class="n">G</span><span class="o">.</span><span class="n">number_of_nodes</span><span class="p">())</span>
     <span class="n">times</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
 
@@ -568,7 +568,7 @@
 </div>
 </div>
 <div class="cell_output docutils container">
-<img alt="../_images/129cc04e44d1c446740b98c84f3873b7f7ffaf23b0d77394f94ea5343f2d72f7.png" src="../_images/129cc04e44d1c446740b98c84f3873b7f7ffaf23b0d77394f94ea5343f2d72f7.png" />
+<img alt="../_images/457b2bd48596ca85d1254c28cde079eb134e67f9cb66915efca43ff8afca8ab3.png" src="../_images/457b2bd48596ca85d1254c28cde079eb134e67f9cb66915efca43ff8afca8ab3.png" />
 </div>
 </div>
 </section>
